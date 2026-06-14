@@ -1,6 +1,3 @@
-<div align="center">
-
-<img src="assets/topology.png" alt="Network Topology" width="100%"/>
 
 # 🛡️ Microsoft Sentinel Threat Hunting Lab
 

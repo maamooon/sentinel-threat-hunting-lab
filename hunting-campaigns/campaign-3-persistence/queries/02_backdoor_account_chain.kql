@@ -1,0 +1,56 @@
+// ============================================================
+// Campaign 3 — Persistence Mechanism Detection
+// Query 3.2 — Backdoor Account Chain
+//             (New Account Created → Added to Administrators)
+// ============================================================
+// MITRE Tactic   : TA0003 — Persistence / Privilege Escalation
+// Technique      : T1136.001 Create Account, T1098 Account Manipulation
+// Event IDs      : 4720 (Account Created), 4732 (Member Added to Group)
+// Table          : SecurityEvent
+//
+// Hypothesis:
+//   A new local account created (4720) and then immediately
+//   added to the local Administrators group (4732) confirms a
+//   backdoor admin account was provisioned for persistent access.
+//
+// Note:
+//   The join uses TargetSid / MemberSid rather than username —
+//   this ensures the detection survives cases where the
+//   MemberName field is empty or contains a raw SID instead
+//   of a resolved username.
+// ============================================================
+
+let NewAccounts =
+    SecurityEvent
+    | where TimeGenerated > ago(2h)
+    | where Computer == "victim-win10"
+    | where EventID == 4720
+    | project
+        AccountCreatedTime = TimeGenerated,
+        NewAccount         = TargetUserName,
+        NewAccountSid      = TargetSid,
+        CreatedBy          = SubjectUserName,
+        Computer;
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID == 4732
+| where TargetUserName == "Administrators"
+| project
+    AddedToAdminTime = TimeGenerated,
+    MemberSid        = MemberSid,
+    AddedBy          = SubjectUserName,
+    Computer
+| join kind=inner NewAccounts
+    on $left.MemberSid == $right.NewAccountSid,
+       $left.Computer  == $right.Computer
+| extend MinutesBetween = datetime_diff('minute',
+    AddedToAdminTime, AccountCreatedTime)
+| project
+    AccountCreatedTime,
+    AddedToAdminTime,
+    MinutesBetween,
+    NewAccount,
+    CreatedBy,
+    Computer
+| order by AccountCreatedTime desc

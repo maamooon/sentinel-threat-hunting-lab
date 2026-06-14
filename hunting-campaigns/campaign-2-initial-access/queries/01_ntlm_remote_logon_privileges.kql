@@ -1,0 +1,31 @@
+// ============================================================
+// Campaign 2 — Initial Access & Remote Session Activity
+// Query 2.1 — NTLM Remote Logon & Privilege Assignment
+// ============================================================
+// MITRE Tactic   : TA0002 — Execution
+// Technique      : T1078 Valid Accounts, T1550.002 Pass-the-Hash
+// Event IDs      : 4624 (LogonType 3), 4634 (Logoff), 4672 (Special Privileges)
+// Table          : SecurityEvent
+//
+// Hypothesis:
+//   Adversary established a remote WinRM session using stolen
+//   credentials. NTLM authentication combined with special
+//   privilege assignment (SeDebugPrivilege, SeImpersonatePrivilege)
+//   confirms attacker-level access via Evil-WinRM.
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID in (4624, 4634, 4672)
+| where LogonType in (3, 10)
+| where IpAddress != "-" and IpAddress != "127.0.0.1"
+| project
+    TimeGenerated,
+    EventID,
+    Activity,
+    Account     = TargetUserName,
+    SourceIP    = IpAddress,
+    LogonType,
+    AuthPackage = AuthenticationPackageName
+| order by TimeGenerated desc

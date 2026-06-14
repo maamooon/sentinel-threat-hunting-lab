@@ -1,0 +1,40 @@
+// ============================================================
+// Campaign 1 — Brute Force & Credential Access
+// Query 1.2 — Kill Shot: Brute Force → Successful Logon Chain
+// ============================================================
+// MITRE Tactic   : TA0001 — Initial Access
+// Technique      : T1110.001 — Password Guessing via WinRM
+// Event IDs      : 4625 (Failed Logon), 4624 (Successful Logon)
+// Table          : SecurityEvent
+//
+// Hypothesis:
+//   A successful logon (4624, LogonType 3/10) from the same
+//   source IP and target account that previously generated
+//   multiple failed logons (4625) confirms the brute force
+//   attack succeeded — this is the moment of compromise.
+// ============================================================
+
+let BruteForce =
+    SecurityEvent
+    | where TimeGenerated > ago(2h)
+    | where Computer == "victim-win10"
+    | where EventID == 4625
+    | summarize FailCount = count() by IpAddress, TargetUserName
+    | where FailCount > 3;
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID == 4624
+| where LogonType in (3, 10)
+| where IpAddress != "-"
+| join kind=inner BruteForce
+    on $left.IpAddress == $right.IpAddress,
+       $left.TargetUserName == $right.TargetUserName
+| project
+    TimeGenerated,
+    Account = TargetUserName,
+    SourceIP = IpAddress,
+    Computer,
+    LogonType,
+    FailCountBeforeSuccess = FailCount
+| order by TimeGenerated desc

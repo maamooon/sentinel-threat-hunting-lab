@@ -1,0 +1,45 @@
+// ============================================================
+// Campaign 4 — Defense Evasion: Log Clearing
+// Query 4.2 — Pre-Clear Attack Context
+// ============================================================
+// MITRE Tactic   : TA0005 — Defense Evasion
+// Technique      : T1070.001 — Clear Windows Event Logs
+// Event IDs      : 1102 (correlated with 4625, 4624, 4720, 4732, 4698)
+// Table          : SecurityEvent
+//
+// Hypothesis:
+//   Even though local Windows logs are wiped by wevtutil,
+//   Azure Monitor Agent forwards events to Sentinel in
+//   real-time BEFORE local deletion occurs. This query
+//   reconstructs the full attack context in the 1-hour
+//   window preceding the log clear — proving that cloud
+//   SIEM telemetry survives local log destruction.
+// ============================================================
+
+let LogClearEvents =
+    SecurityEvent
+    | where TimeGenerated > ago(2h)
+    | where Computer == "victim-win10"
+    | where EventID == 1102
+    | project
+        ClearTime = TimeGenerated,
+        Computer,
+        ClearedBy = SubjectUserName;
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID in (4625, 4624, 4720, 4732, 4698)
+| join kind=inner LogClearEvents on Computer
+| where TimeGenerated between ((ClearTime - 1h) .. ClearTime)
+| summarize
+    EventsBeforeClear = count(),
+    EventTypes        = makeset(EventID),
+    AccountsInvolved  = makeset(TargetUserName)
+    by Computer, ClearedBy, ClearTime
+| project
+    ClearTime,
+    Computer,
+    ClearedBy,
+    EventsBeforeClear,
+    EventTypes,
+    AccountsInvolved

@@ -1,0 +1,46 @@
+// ============================================================
+// Full Kill Chain — Complete Attack Timeline (Flagship Query)
+// ============================================================
+// MITRE Tactics  : TA0001 → TA0002 → TA0003 → TA0005
+// Techniques     : T1110.001, T1078, T1059.001, T1053.005,
+//                  T1136.001, T1098, T1070.001
+// Event IDs      : 4625, 4624, 4672, 4698, 4720, 4732, 1102
+// Table          : SecurityEvent
+//
+// Purpose:
+//   Surfaces all 7 stages of the simulated attack in a single
+//   chronological view — from the first brute-force attempt
+//   through to defense evasion (log clearing). This is the
+//   centrepiece query for the project: it tells the complete
+//   attack story in one table for SOC analyst triage, without
+//   needing to pivot between multiple queries.
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID in (4625, 4624, 4672, 4698, 4720, 4732, 1102)
+| extend AttackStage = case(
+    EventID == 4625, "[1] Brute Force — Failed Logon",
+    EventID == 4624, "[2] Initial Access — Successful Logon",
+    EventID == 4672, "[3] Execution — Special Privileges Assigned",
+    EventID == 4698, "[4] Persistence — Scheduled Task Created",
+    EventID == 4720, "[5] Persistence — New Account Created",
+    EventID == 4732, "[6] Persistence — Account Added to Admins",
+    EventID == 1102, "[7] Defense Evasion — Security Log Cleared",
+    "Unknown"
+)
+| extend Actor = case(
+    EventID == 1102, SubjectUserName,
+    EventID in (4625, 4624, 4720), TargetUserName,
+    SubjectUserName
+)
+| extend SourceIP = iff(EventID in (4624, 4625), IpAddress, "-")
+| where Actor != "-" and Actor != ""
+| project
+    TimeGenerated,
+    AttackStage,
+    Actor,
+    SourceIP,
+    Computer
+| order by TimeGenerated asc

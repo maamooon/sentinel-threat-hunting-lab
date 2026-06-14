@@ -1,0 +1,40 @@
+// ============================================================
+// Campaign 1 — Brute Force & Credential Access
+// Query 1.1 — Brute Force Volume Detection
+// ============================================================
+// MITRE Tactic   : TA0001 — Initial Access
+// Technique      : T1110.001 — Password Guessing via WinRM
+// Event IDs      : 4625 (Failed Logon)
+// Table          : SecurityEvent
+//
+// Hypothesis:
+//   Adversary performing credential brute force via WinRM.
+//   High volume of 4625 events from a single source IP within
+//   a short time window indicates an active brute force attempt.
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID == 4625
+| where IpAddress != "-" and IpAddress != "127.0.0.1"
+| summarize
+    FailedAttempts = count(),
+    FirstSeen      = min(TimeGenerated),
+    LastSeen       = max(TimeGenerated),
+    TargetAccounts = makeset(TargetUserName)
+    by IpAddress
+| where FailedAttempts > 3
+| extend RiskLevel = case(
+    FailedAttempts > 100, "CRITICAL",
+    FailedAttempts > 50,  "HIGH",
+    FailedAttempts > 10,  "MEDIUM",
+                          "LOW"
+)
+| project
+    FirstSeen,
+    SourceIP = IpAddress,
+    FailedAttempts,
+    RiskLevel,
+    TargetAccounts
+| order by FailedAttempts desc

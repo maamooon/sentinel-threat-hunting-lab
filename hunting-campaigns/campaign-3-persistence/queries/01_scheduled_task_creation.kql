@@ -1,0 +1,27 @@
+// ============================================================
+// Campaign 3 — Persistence Mechanism Detection
+// Query 3.1 — Scheduled Task Creation
+// ============================================================
+// MITRE Tactic   : TA0003 — Persistence
+// Technique      : T1053.005 — Scheduled Task/Job
+// Event IDs      : 4698 (Scheduled Task Created)
+// Table          : SecurityEvent
+//
+// Hypothesis:
+//   Adversary creating a scheduled task to establish persistence
+//   that survives reboots and re-executes attacker-controlled
+//   commands without requiring re-authentication.
+// ============================================================
+
+SecurityEvent
+| where TimeGenerated > ago(2h)
+| where Computer == "victim-win10"
+| where EventID == 4698
+| parse EventData with * '<Data Name="TaskName">' TaskName '</Data>' *
+| parse EventData with * '<Data Name="SubjectUserName">' CreatedBy '</Data>' *
+| project
+    TimeGenerated,
+    Computer,
+    CreatedBy,
+    TaskName
+| order by TimeGenerated desc
