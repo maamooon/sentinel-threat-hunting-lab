@@ -1,0 +1,400 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+        {
+            "type": 1,
+            "content": {
+                "json": "# SOC Threat Hunting Workbook\r\n## Microsoft Sentinel — MITRE ATT&CK Kill Chain Detection\r\n**Author:** Mamoon Ahmad | **Target:** victim-win10 | **SIEM:** Microsoft Sentinel\r\n\r\n---\r\n\r\n| Field | Detail |\r\n|---|---|\r\n| **Environment** | Azure VM (Windows 10) → Log Analytics Workspace → Microsoft Sentinel |\r\n| **Attack Source** | Kali Linux (Evil-WinRM, Metasploit winrm_login) |\r\n| **MITRE Coverage** | TA0001, TA0002, TA0003, TA0004, TA0005 |\r\n| **Detection Method** | KQL Analytics — SecurityEvent + WindowsEvent tables |"
+            },
+            "name": "text - 0",
+            "id": "d42158a8-dd55-4c91-91fe-9dc0d38d34f9"
+        },
+        {
+            "type": 9,
+            "content": {
+                "version": "KqlParameterItem/1.0",
+                "parameters": [
+                    {
+                        "id": "37621ef8-3814-4ecc-9ffe-c6c7f1290c5a",
+                        "key": "37621ef8-3814-4ecc-9ffe-c6c7f1290c5a",
+                        "name": "TimeRange",
+                        "label": "Time Range",
+                        "value": {
+                            "durationMs": 86400000
+                        },
+                        "type": 4,
+                        "isRequired": true,
+                        "version": "",
+                        "typeSettings": {
+                            "selectableValues": [
+                                {
+                                    "durationMs": 86400000
+                                }
+                            ],
+                            "allowCustom": false
+                        }
+                    }
+                ],
+                "style": "pills",
+                "title": "TimeRange Parameter"
+            },
+            "name": "parameters - 1",
+            "id": "3903ae41-a0e9-487e-b915-b357c5b029a2"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4625\r\n| summarize FailedLogons = count()",
+                "size": 1,
+                "title": "Failed Logon Attempts",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "titleOptions": {
+                    "helpText": "T1110 — Brute Force",
+                    "icon": "dot-redBright"
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "tiles",
+                "tileSettings": {
+                    "showBorder": false
+                },
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 2",
+            "id": "ed3c9419-fcff-4fb0-a860-b3ba10167901"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4720\r\n| summarize NewAccounts = count()",
+                "size": 4,
+                "title": "New Accounts Created",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "titleOptions": {
+                    "helpText": "T1136 — Persistence",
+                    "icon": "dot-orange"
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "tiles",
+                "tileSettings": {
+                    "showBorder": false
+                },
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 3",
+            "id": "f011148d-a68e-443f-b165-f33a2eb43ec2"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4698\r\n| summarize Tasks = count()",
+                "size": 4,
+                "title": "Scheduled Tasks Created",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "titleOptions": {
+                    "helpText": "T1053 — Persistence",
+                    "icon": "dot-yellow"
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "tiles",
+                "tileSettings": {
+                    "showBorder": false
+                },
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 4",
+            "id": "d0cdd578-eaeb-435a-adf0-ae04b7c30e7d"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 1102\r\n| summarize LogClears = count()",
+                "size": 4,
+                "title": "Security Log Cleared",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "titleOptions": {
+                    "helpText": "T1070 — Defense Evasion",
+                    "icon": "dot-redBright"
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "tiles",
+                "tileSettings": {
+                    "showBorder": false
+                },
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 5",
+            "id": "49ab6264-e54e-419d-b767-b03daf1e7e65"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID in (4625, 4624, 4698, 4720, 4732, 1102)\r\n| extend AttackStage = case(\r\n    EventID == 4625, \"Brute Force\",\r\n    EventID == 4624, \"Initial Access\",\r\n    EventID == 4698, \"Scheduled Task\",\r\n    EventID == 4720, \"Account Created\",\r\n    EventID == 4732, \"Added to Admins\",\r\n    EventID == 1102, \"Log Cleared\",\r\n    \"Other\"\r\n)\r\n| summarize count() by AttackStage, bin(TimeGenerated, 5m)\r\n| render timechart",
+                "size": 0,
+                "title": "Attack Activity Timeline — All Stages",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "timechart",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 6",
+            "id": "65d5d2cd-7d29-465f-b449-78bf9c50277d"
+        },
+        {
+            "type": 1,
+            "content": {
+                "json": "## Campaign 1 — Brute Force & Credential Access\r\n**MITRE:** TA0001 Initial Access | T1110.001 Password Guessing  \r\n**Table:** SecurityEvent | **Key Event IDs:** 4625 (fail), 4624 (success)\r\n\r\n**Hypothesis:** Adversary performing credential brute force via WinRM.\r\nHigh volume of 4625 events from single source IP followed by\r\nsuccessful 4624 — confirms credential compromise."
+            },
+            "name": "text - 7",
+            "id": "b0defcad-4eec-4103-b7a3-0e3ab23e666d"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4625\r\n| where IpAddress != \"-\" and IpAddress != \"127.0.0.1\"\r\n| summarize\r\n    FailedAttempts = count(),\r\n    FirstSeen = min(TimeGenerated),\r\n    LastSeen = max(TimeGenerated),\r\n    TargetAccounts = makeset(TargetUserName)\r\n    by IpAddress\r\n| where FailedAttempts > 3\r\n| extend RiskLevel = case(\r\n    FailedAttempts > 100, \"🔴 CRITICAL\",\r\n    FailedAttempts > 50,  \"🟠 HIGH\",\r\n    FailedAttempts > 10,  \"🟡 MEDIUM\",\r\n                          \"🟢 LOW\"\r\n)\r\n| project\r\n    FirstSeen, SourceIP = IpAddress,\r\n    FailedAttempts, RiskLevel,\r\n    TargetAccounts\r\n| order by FailedAttempts desc",
+                "size": 0,
+                "title": "Brute Force Sources",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "gridSettings": {
+                    "formatters": [
+                        {
+                            "columnMatch": "FailedAttempts",
+                            "formatter": 8,
+                            "formatOptions": {
+                                "palette": "hotCold"
+                            }
+                        }
+                    ]
+                },
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 8",
+            "id": "0eff7136-8cce-4d1e-86b8-a50d8a980ba9"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "let BruteForce =\r\n    SecurityEvent\r\n    | where TimeGenerated {TimeRange}\r\n    | where Computer == \"victim-win10\"\r\n    | where EventID == 4625\r\n    | summarize FailCount = count() by IpAddress, TargetUserName\r\n    | where FailCount > 3;\r\nSecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4624\r\n| where LogonType in (3, 10)\r\n| where IpAddress != \"-\"\r\n| join kind=inner BruteForce\r\n    on $left.IpAddress == $right.IpAddress,\r\n       $left.TargetUserName == $right.TargetUserName\r\n| project\r\n    TimeGenerated,\r\n    Account = TargetUserName,\r\n    SourceIP = IpAddress,\r\n    Computer,\r\n    LogonType,\r\n    FailCountBeforeSuccess = FailCount\r\n| order by TimeGenerated desc",
+                "size": 0,
+                "title": "Brute Force → Successful Logon (Confirmed Compromise)",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 9",
+            "id": "ac0bedb8-07b4-43f1-9fb5-69b3595d3371"
+        },
+        {
+            "type": 1,
+            "content": {
+                "json": "## Campaign 2 — Initial Access & Execution\r\n**MITRE:** TA0002 Execution | T1078 Valid Accounts | T1550.002 Pass-the-Hash  \r\n**Table:** SecurityEvent | **Key Event IDs:** 4624 (LogonType 3), 4672\r\n\r\n**Hypothesis:** Adversary established remote WinRM session using\r\nstolen credentials. NTLM authentication with SeDebugPrivilege\r\nand SeImpersonatePrivilege assigned confirms attacker-level access."
+            },
+            "name": "text - 10",
+            "id": "e56f2af7-7c4d-4226-b90c-2ced8d7005c9"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID in (4624, 4634, 4672)\r\n| where LogonType in (3, 10)\r\n| where IpAddress != \"-\" and IpAddress != \"127.0.0.1\"\r\n| project\r\n    TimeGenerated,\r\n    EventID,\r\n    Activity,\r\n    Account = TargetUserName,\r\n    SourceIP = IpAddress,\r\n    LogonType,\r\n    AuthPackage = AuthenticationPackageName\r\n| order by TimeGenerated desc",
+                "size": 0,
+                "title": "Remote Session Activity — NTLM Logons",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 11",
+            "id": "40b36440-2252-4b3e-96af-9f36cbbc82b2"
+        },
+        {
+            "type": 1,
+            "content": {
+                "json": "## Campaign 3 — Persistence\r\n**MITRE:** TA0003 Persistence | T1547.001 Registry Run Keys | T1053.005 Scheduled Tasks | T1136.001 Create Account  \r\n**Table:** SecurityEvent | **Key Event IDs:** 4698, 4720, 4732\r\n\r\n**Hypothesis:** Adversary establishing multiple persistence mechanisms\r\nto survive reboots. New local admin account creation immediately\r\nfollowed by Administrators group membership confirms backdoor access."
+            },
+            "name": "text - 12",
+            "id": "24a71352-bcd8-4f8a-8359-0c904bc1b3f6"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4698\r\n| parse EventData with * '<Data Name=\"TaskName\">' TaskName '</Data>' *\r\n| parse EventData with * '<Data Name=\"SubjectUserName\">' CreatedBy '</Data>' *\r\n| project TimeGenerated, Computer, CreatedBy, TaskName\r\n| order by TimeGenerated desc",
+                "size": 0,
+                "title": "Scheduled Tasks Created",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 13",
+            "id": "4323115e-609a-4656-9e44-7dff4b78e0ba"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "let NewAccounts =\r\n    SecurityEvent\r\n    | where TimeGenerated {TimeRange}\r\n    | where Computer == \"victim-win10\"\r\n    | where EventID == 4720\r\n    | project\r\n        AccountCreatedTime = TimeGenerated,\r\n        NewAccount = TargetUserName,\r\n        NewAccountSid = TargetSid,\r\n        CreatedBy = SubjectUserName,\r\n        Computer;\r\nSecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 4732\r\n| where TargetUserName == \"Administrators\"\r\n| project\r\n    AddedToAdminTime = TimeGenerated,\r\n    MemberSid = MemberSid,\r\n    AddedBy = SubjectUserName,\r\n    Computer\r\n| join kind=inner NewAccounts\r\n    on $left.MemberSid == $right.NewAccountSid,\r\n       $left.Computer == $right.Computer\r\n| extend MinutesBetween = datetime_diff('minute', AddedToAdminTime, AccountCreatedTime)\r\n| project\r\n    AccountCreatedTime,\r\n    AddedToAdminTime,\r\n    MinutesBetween,\r\n    NewAccount,\r\n    CreatedBy,\r\n    Computer\r\n| order by AccountCreatedTime desc",
+                "size": 0,
+                "title": "New Account → Added to Administrators (Backdoor Chain)",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 14",
+            "id": "0e8b257a-743f-4cc3-97f9-f075a8b7c012"
+        },
+        {
+            "type": 1,
+            "content": {
+                "json": "## Campaign 4 — Defense Evasion\r\n**MITRE:** TA0005 Defense Evasion | T1070.001 Clear Windows Event Logs  \r\n**Table:** SecurityEvent | **Key Event ID:** 1102\r\n\r\n**Hypothesis:** Adversary clearing Windows Security event log\r\nto destroy forensic evidence post-compromise. Sentinel detects\r\nthis because AMA forwards logs in real-time before local deletion.\r\nLog clearing itself becomes the evidence."
+            },
+            "name": "text - 15",
+            "id": "7359a301-abcb-407f-910f-3bb5a0dd21de"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID == 1102\r\n| project\r\n    TimeGenerated,\r\n    Computer,\r\n    ClearedBy = SubjectUserName,\r\n    Severity = \"⚫ CRITICAL — Log Cleared\"\r\n| order by TimeGenerated desc",
+                "size": 0,
+                "title": "Security Log Cleared Events",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 16",
+            "id": "0655bad3-a412-45cf-8d57-c1924873278f"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "let LogClearEvents =\r\n    SecurityEvent\r\n    | where TimeGenerated {TimeRange}\r\n    | where Computer == \"victim-win10\"\r\n    | where EventID == 1102\r\n    | project ClearTime = TimeGenerated,\r\n        Computer, ClearedBy = SubjectUserName;\r\nSecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID in (4625, 4624, 4720, 4732, 4698)\r\n| join kind=inner LogClearEvents on Computer\r\n| where TimeGenerated between ((ClearTime - 1h) .. ClearTime)\r\n| summarize\r\n    EventsBeforeClear = count(),\r\n    EventTypes = makeset(EventID),\r\n    AccountsInvolved = makeset(TargetUserName)\r\n    by Computer, ClearedBy, ClearTime\r\n| project\r\n    ClearTime, Computer, ClearedBy,\r\n    EventsBeforeClear, EventTypes, AccountsInvolved",
+                "size": 0,
+                "title": "Pre-Clear Attack Context — What Happened Before Log Wipe",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 17",
+            "id": "ed1af4b2-d91b-4cf9-8c13-fdcea688e863"
+        },
+        {
+            "type": 1,
+            "content": {
+                "json": "## Full Kill Chain — Complete Attack Timeline\r\n**All MITRE Tactics in Chronological Order**\r\n\r\nThis query shows the complete attack from first brute force attempt\r\nthrough to log clearing — the entire kill chain in a single view."
+            },
+            "name": "text - 18",
+            "id": "31a1151e-6f48-409b-982e-d668b8a28d01"
+        },
+        {
+            "type": 3,
+            "content": {
+                "version": "KqlItem/1.0",
+                "query": "SecurityEvent\r\n| where TimeGenerated {TimeRange}\r\n| where Computer == \"victim-win10\"\r\n| where EventID in (4625, 4624, 4672, 4698, 4720, 4732, 1102)\r\n| extend AttackStage = case(\r\n    EventID == 4625, \"🔴 1 — Brute Force Failed Logon\",\r\n    EventID == 4624, \"🟠 2 — Initial Access Successful Logon\",\r\n    EventID == 4672, \"🟠 3 — Execution Special Privileges\",\r\n    EventID == 4698, \"🟡 4 — Persistence Scheduled Task\",\r\n    EventID == 4720, \"🟡 5 — Persistence New Account\",\r\n    EventID == 4732, \"🟡 6 — Persistence Added to Admins\",\r\n    EventID == 1102, \"⚫ 7 — Defense Evasion Log Cleared\",\r\n    \"Unknown\"\r\n)\r\n| extend Actor = case(\r\n    EventID == 1102, SubjectUserName,\r\n    EventID == 4625, TargetUserName,\r\n    EventID == 4624, TargetUserName,\r\n    EventID == 4672, SubjectUserName,\r\n    EventID == 4698, SubjectUserName,\r\n    EventID == 4720, TargetUserName,\r\n    EventID == 4732, SubjectUserName,\r\n    \"-\"\r\n)\r\n| extend SourceIP = case(\r\n    EventID in (4624, 4625), IpAddress,\r\n    \"-\"\r\n)\r\n| where Actor != \"-\" and Actor != \"\"\r\n| project\r\n    TimeGenerated,\r\n    AttackStage,\r\n    Actor,\r\n    SourceIP,\r\n    Computer\r\n| order by TimeGenerated asc",
+                "size": 0,
+                "title": "Complete MITRE ATT&CK Kill Chain — victim-win10",
+                "timeContext": {
+                    "durationMs": 86400000
+                },
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "table",
+                "gridSettings": {
+                    "formatters": [
+                        {
+                            "columnMatch": "AttackStage",
+                            "formatter": 1
+                        }
+                    ]
+                },
+                "crossComponentResources": [
+                    "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+                ]
+            },
+            "name": "query - 19",
+            "id": "aa228ddc-40c0-4f34-b463-7dd42b90a018"
+        }
+    ],
+    "isLocked": true,
+    "fallbackResourceIds": [
+        "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+    ],
+    "fromTemplateId": "sentinel-UserWorkbook",
+    "context": {
+        "ownerId": "/subscriptions/7d0a8203-4111-4fcc-98e8-fe519fa7c3d4/resourcegroups/rg-soc-sentinel-lab/providers/microsoft.operationalinsights/workspaces/law-soc-sentinel"
+    }
+}
